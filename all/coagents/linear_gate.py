@@ -34,5 +34,4 @@ class LinearGate(Policy):
 
     def probabilities(self, features, action):
         action_scores = np.exp(self.weights[action].dot(features))
-        action_scores[0] + 10
         return action_scores / np.sum(action_scores)
