@@ -7,6 +7,7 @@ class GatedPolicyActorCritic(Agent):
         self.gate = gate
 
         self.env = None
+        self.opened_state = None
         self.gate_opened = False
         self.state = None
         self.action = None
@@ -17,6 +18,7 @@ class GatedPolicyActorCritic(Agent):
         self.env = env
         self.gate_opened = False
         self.state = self.env.state
+        self.opened_state = self.state
         self.action = self.policy.call(self.state)
         self.next_state = None
         self.accumulated_td_error = 0
@@ -25,6 +27,7 @@ class GatedPolicyActorCritic(Agent):
         self.gate_opened = self.gate.call(self.state, self.action)
         if self.gate_opened == 1:
             self.update_policy()
+            self.opened_state = self.state
             self.action = self.policy.call(self.state)
         self.env.step(self.action)
         self.next_state = self.env.state
@@ -42,5 +45,5 @@ class GatedPolicyActorCritic(Agent):
         self.gate.update(td_error, self.state, self.action, self.gate_opened)
 
     def update_policy(self):
-        self.policy.update(self.accumulated_td_error, self.state, self.action)
+        self.policy.update(self.accumulated_td_error, self.opened_state, self.action)
         self.accumulated_td_error = 0
