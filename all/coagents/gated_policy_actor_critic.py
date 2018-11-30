@@ -40,10 +40,9 @@ class GatedPolicyActorCritic(Agent):
                 if not self.env.done else 0)
             - self.v.call(self.state))
         self.accumulated_td_error += td_error
-
-        self.v.update(td_error, self.state)
         self.gate.update(td_error, self.state, self.action, self.gate_opened)
 
     def update_policy(self):
         self.policy.update(self.accumulated_td_error, self.opened_state, self.action)
+        self.v.update(self.accumulated_td_error, self.opened_state)
         self.accumulated_td_error = 0

@@ -5,6 +5,7 @@ class LinearGate(Policy):
     def __init__(self, learning_rate, basis, action_space):
         self.learning_rate = learning_rate
         self.basis = basis
+        self.bias = 10
         self.weights = np.zeros((action_space.n, 2, self.basis.num_features))
 
     def call(self, state, action):
@@ -34,4 +35,5 @@ class LinearGate(Policy):
 
     def probabilities(self, features, action):
         action_scores = np.exp(self.weights[action].dot(features))
+        action_scores[0] += self.bias
         return action_scores / np.sum(action_scores)
