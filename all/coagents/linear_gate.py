@@ -2,10 +2,10 @@ import numpy as np
 from all.policies.policy import Policy
 
 class LinearGate(Policy):
-    def __init__(self, learning_rate, basis, action_space):
+    def __init__(self, learning_rate, basis, action_space, repeat_prior=0.8):
         self.learning_rate = learning_rate
         self.basis = basis
-        self.bias = 10
+        self.bias = np.log(repeat_prior / (1 - repeat_prior))
         self.weights = np.zeros((action_space.n, 2, self.basis.num_features))
 
     def call(self, state, action):
@@ -34,6 +34,8 @@ class LinearGate(Policy):
         self.weights = parameters
 
     def probabilities(self, features, action):
-        action_scores = np.exp(self.weights[action].dot(features))
-        action_scores[0] += self.bias
+        raw_scores = np.exp(self.weights[action].dot(features))
+        raw_scores[0] += self.bias
+        raw_scores -= np.max(raw_scores)
+        action_scores = np.exp(raw_scores)
         return action_scores / np.sum(action_scores)
