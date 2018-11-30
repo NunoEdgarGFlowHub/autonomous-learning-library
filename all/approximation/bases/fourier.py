@@ -33,8 +33,23 @@ class FourierBasis(Basis):
         self.weights /= scale
         self._num_features = self.weights.shape[0]
 
+        self.cache_in = [None, None]
+        self.cache_out = [None, None]
+
     def features(self, args):
-        return np.cos(self.weights.dot(args + self.offset))
+        if np.array_equal(self.cache_in[0], args):
+            return self.cache_out[0]
+        if np.array_equal(self.cache_in[1], args):
+            return self.cache_out[1]
+
+        result = np.cos(self.weights.dot(args + self.offset))
+
+        self.cache_in[1] = self.cache_in[0]
+        self.cache_out[1] = self.cache_out[0]
+        self.cache_in[0] = args
+        self.cache_out[0] = result
+
+        return result
 
     @property
     def num_features(self):
