@@ -73,7 +73,6 @@ class Experiment:
         return results
 
 def run_episode(agent, env):
-    env.seed(0)
     env.reset()
     agent.new_episode(env)
     returns = 0
