@@ -4,6 +4,7 @@ from .actor_critic import ActorCritic
 from .dqn import DQN
 from .sarsa import Sarsa
 from .vpg import VPG
+from .bbpg import BBPG
 
 __all__ = [
     "Agent",
@@ -12,4 +13,5 @@ __all__ = [
     "DQN",
     "Sarsa",
     "VPG",
+    "BBPG"
 ]

@@ -15,6 +15,7 @@ class SoftmaxPolicy(Policy):
             clip_grad=0,
             writer=DummyWriter()
     ):
+        self.device = next(model.parameters()).device
         self.model = ListNetwork(model, (actions,))
         self.optimizer = optimizer
         self.entropy_loss_scaling = entropy_loss_scaling

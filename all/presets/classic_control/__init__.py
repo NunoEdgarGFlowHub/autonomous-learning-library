@@ -3,6 +3,7 @@ from .actor_critic import actor_critic
 from .dqn import dqn
 from .rainbow import rainbow
 from .vpg import vpg
+from .bbpg import bbpg
 from .sarsa import sarsa
 
 __all__ = [
