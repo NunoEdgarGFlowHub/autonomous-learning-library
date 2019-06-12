@@ -15,6 +15,7 @@ class ValueNetwork(ValueFunction):
             loss=mse_loss,
             loss_scaling=1,
             clip_grad=0,
+            save_frequency=None,
             writer=DummyWriter()
     ):
         self.model = ListNetwork(model, (1,))
@@ -26,6 +27,8 @@ class ValueNetwork(ValueFunction):
         self._cache = []
         self.clip_grad = clip_grad
         self._writer = writer
+        self._save_frequency = save_frequency
+        self._updates = 0
 
     def __call__(self, states):
         result = self.model(states).squeeze(1)
@@ -42,7 +45,7 @@ class ValueNetwork(ValueFunction):
     def reinforce(self, td_errors, retain_graph=False):
         td_errors = td_errors.view(-1)
         batch_size = len(td_errors)
-        cache = self.decache(batch_size)
+        cache = self._decache(batch_size)
 
         if cache.requires_grad:
             targets = td_errors + cache.detach()
@@ -54,7 +57,9 @@ class ValueNetwork(ValueFunction):
             self.optimizer.step()
             self.optimizer.zero_grad()
 
-    def decache(self, batch_size):
+        self._save_model()
+
+    def _decache(self, batch_size):
         i = 0
         items = 0
         while items < batch_size and i < len(self._cache):
@@ -66,3 +71,15 @@ class ValueNetwork(ValueFunction):
         cache = torch.cat(self._cache[:i])
         self._cache = self._cache[i:]
         return cache
+
+    def _save_model(self):
+        self._updates += 1
+        if self._should_save():
+            torch.save(self.model, 'value.pt')
+            print('saved model. Updates:', self._updates)
+
+    def _should_save(self):
+        return (
+            self._save_frequency is not None
+            and self._updates % self._save_frequency == 0
+        )
