@@ -45,7 +45,8 @@ class RA2C(Agent):
 
             reward_errors = (
                 values.detach()
-                - self.discount_factor * next_values
+                + (self.discount_factor ** rollout_lengths)
+                * self.discount_factor * next_values
                 - self.r(State(torch.cat((features.raw.detach(), next_features.raw), dim=1)))
             )
 

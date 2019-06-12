@@ -4,12 +4,15 @@ from all.environments import State
 from .features import Features
 
 class FeatureNetwork(Features):
-    def __init__(self, model, optimizer, clip_grad=0):
+    def __init__(self, model, optimizer, clip_grad=0, save_frequency=None):
         self.model = model
         self.optimizer = optimizer
         self.clip_grad = clip_grad
         self._cache = []
         self._out = []
+        self.name = 'features'
+        self._updates = 0
+        self._save_frequency = save_frequency
 
     def __call__(self, states):
         features = self.model(states.features.float())
@@ -41,6 +44,7 @@ class FeatureNetwork(Features):
             utils.clip_grad_norm_(self.model.parameters(), self.clip_grad)
         self.optimizer.step()
         self.optimizer.zero_grad()
+        self._save_model()
 
     def _decache(self):
         graphs = []
@@ -52,3 +56,15 @@ class FeatureNetwork(Features):
         self._cache = []
         self._out = []
         return torch.cat(graphs), torch.cat(grads)
+
+    def _save_model(self):
+        self._updates += 1
+        if self._should_save():
+            torch.save(self.model, self.name + '.pt')
+            print('saved model', self.name, 'Updates:', self._updates)
+
+    def _should_save(self):
+        return (
+            self._save_frequency is not None
+            and self._updates % self._save_frequency == 0
+        )

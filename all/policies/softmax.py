@@ -13,15 +13,19 @@ class SoftmaxPolicy(Policy):
             actions,
             entropy_loss_scaling=0,
             clip_grad=0,
+            save_frequency=None,
             writer=DummyWriter()
     ):
         self.model = ListNetwork(model, (actions,))
         self.optimizer = optimizer
         self.entropy_loss_scaling = entropy_loss_scaling
         self.clip_grad = clip_grad
+        self._save_frequency = save_frequency
         self._log_probs = []
         self._entropy = []
         self._writer = writer
+        self._updates = 0
+        self.name = 'policy'
 
     def __call__(self, state, action=None, prob=None):
         scores = self.model(state)
@@ -64,6 +68,8 @@ class SoftmaxPolicy(Policy):
             self.optimizer.step()
             self.optimizer.zero_grad()
 
+        self._save_model()
+
     def cache(self, distribution, action):
         self._log_probs.append(distribution.log_prob(action))
         self._entropy.append(distribution.entropy())
@@ -83,3 +89,15 @@ class SoftmaxPolicy(Policy):
         self._entropy = self._entropy[i:]
 
         return log_probs, entropy
+
+    def _save_model(self):
+        self._updates += 1
+        if self._should_save():
+            torch.save(self.model, self.name + '.pt')
+            print('saved model', self.name, 'Updates:', self._updates)
+
+    def _should_save(self):
+        return (
+            self._save_frequency is not None
+            and self._updates % self._save_frequency == 0
+        )

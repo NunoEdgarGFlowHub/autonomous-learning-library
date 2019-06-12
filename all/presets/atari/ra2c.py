@@ -44,6 +44,7 @@ def ra2c(
         entropy_loss_scaling=0.01,
         value_loss_scaling=0.25,
         feature_lr_scaling=1,
+        save_frequency=200,
         n_envs=50,
         n_steps=5,
         device=torch.device("cpu"),
@@ -84,7 +85,8 @@ def ra2c(
         features = FeatureNetwork(
             feature_model,
             feature_optimizer,
-            clip_grad=clip_grad
+            clip_grad=clip_grad,
+            save_frequency=save_frequency
         )
         r = ValueNetwork(
             reward_model,
@@ -92,7 +94,7 @@ def ra2c(
             clip_grad=clip_grad,
             writer=writer,
             name='reward',
-            save_frequency=200
+            save_frequency=save_frequency
         )
         v = ValueNetwork(
             value_model,
@@ -100,7 +102,7 @@ def ra2c(
             loss_scaling=value_loss_scaling,
             clip_grad=clip_grad,
             writer=writer,
-            save_frequency=200
+            save_frequency=save_frequency
         )
         policy = SoftmaxPolicy(
             policy_model,
@@ -109,6 +111,7 @@ def ra2c(
             entropy_loss_scaling=entropy_loss_scaling,
             clip_grad=clip_grad,
             writer=writer,
+            save_frequency=save_frequency
         )
 
         return ParallelAtariBody(
