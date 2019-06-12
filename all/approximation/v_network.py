@@ -15,6 +15,7 @@ class ValueNetwork(ValueFunction):
             loss=mse_loss,
             loss_scaling=1,
             clip_grad=0,
+            name='value',
             save_frequency=None,
             writer=DummyWriter()
     ):
@@ -26,6 +27,7 @@ class ValueNetwork(ValueFunction):
         self.loss_scaling = loss_scaling
         self._cache = []
         self.clip_grad = clip_grad
+        self.name = name
         self._writer = writer
         self._save_frequency = save_frequency
         self._updates = 0
@@ -50,7 +52,7 @@ class ValueNetwork(ValueFunction):
         if cache.requires_grad:
             targets = td_errors + cache.detach()
             loss = self.loss(cache, targets) * self.loss_scaling
-            self._writer.add_loss('value', loss)
+            self._writer.add_loss(self.name, loss)
             loss.backward(retain_graph=retain_graph)
             if self.clip_grad != 0:
                 utils.clip_grad_norm_(self.model.parameters(), self.clip_grad)
@@ -75,8 +77,8 @@ class ValueNetwork(ValueFunction):
     def _save_model(self):
         self._updates += 1
         if self._should_save():
-            torch.save(self.model, 'value.pt')
-            print('saved model. Updates:', self._updates)
+            torch.save(self.model, self.name + '.pt')
+            print('saved model', self.name, 'Updates:', self._updates)
 
     def _should_save(self):
         return (
