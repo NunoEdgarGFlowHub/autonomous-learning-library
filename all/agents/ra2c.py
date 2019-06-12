@@ -41,20 +41,16 @@ class RA2C(Agent):
             features = State.from_list(self._features)
             next_features = self.features.eval(next_states)
             values = self.v(features)
-            next_values = self.v.eval(next_features)
+            next_values = (self.discount_factor ** rollout_lengths) * self.v.eval(next_features)
 
             reward_errors = (
                 values.detach()
-                + (self.discount_factor ** rollout_lengths)
-                * self.discount_factor * next_values
+                - next_values
                 - self.r(State(torch.cat((features.raw.detach(), next_features.raw), dim=1)))
             )
 
             td_errors = (
-                returns
-                + (self.discount_factor ** rollout_lengths)
-                * next_values
-                - values
+                returns + next_values - values
             )
 
             self.r.reinforce(reward_errors)
