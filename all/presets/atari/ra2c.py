@@ -21,9 +21,15 @@ def conv_features():
         Flatten(),
     )
 
-def reward_net():
-    return nn.Sequential(nn.Linear(3456 * 2, 512), nn.ReLU(), Linear0(512, 1))
-
+def reward_net(latent_features):
+    return nn.Sequential(
+        nn.Linear(3456 * 2, 512),
+        nn.ReLU(),
+        nn.Linear(512, latent_features),
+        nn.BatchNorm1d(latent_features),
+        nn.Sigmoid(),
+        Linear0(latent_features, 1, bias=False)
+    )
 
 def value_net():
     return nn.Sequential(nn.Linear(3456, 512), nn.ReLU(), Linear0(512, 1))
@@ -32,7 +38,6 @@ def policy_net(env):
     return nn.Sequential(
         nn.Linear(3456, 512), nn.ReLU(), Linear0(512, env.action_space.n)
     )
-
 
 def ra2c(
         # based on stable baselines hyperparameters
@@ -47,13 +52,14 @@ def ra2c(
         save_frequency=200,
         n_envs=50,
         n_steps=5,
+        latent_features=4,
         device=torch.device("cpu"),
 ):
     def _ra2c(envs, writer=DummyWriter()):
         env = envs[0]
 
         feature_model = conv_features().to(device)
-        reward_model = reward_net().to(device)
+        reward_model = reward_net(latent_features).to(device)
         value_model = value_net().to(device)
         policy_model = policy_net(env).to(device)
 
