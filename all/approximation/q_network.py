@@ -6,7 +6,6 @@ from all.experiments import DummyWriter
 from all.layers import ListNetwork
 from .q_function import QFunction
 
-
 class QNetwork(QFunction):
     def __init__(
             self,
