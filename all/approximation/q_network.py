@@ -47,7 +47,7 @@ class QNetwork(QFunction):
 
     def reinforce(self, td_errors):
         targets = td_errors + self.cache.detach()
-        loss = self.loss(self.cache, targets)
+        loss = self.loss(self.cache.view(-1), targets.view(-1))
         self.writer.add_loss('q', loss)
         loss.backward()
         self.optimizer.step()
