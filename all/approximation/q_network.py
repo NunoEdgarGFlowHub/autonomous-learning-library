@@ -62,7 +62,7 @@ class QNetwork(QFunction):
             return values
         if isinstance(actions, list):
             actions = torch.tensor(actions, device=self.device)
-        return values.gather(1, actions.view(-1, 1)).squeeze(1)
+        return values[torch.arange(len(actions)), actions]
 
     def should_update_target(self):
         return (

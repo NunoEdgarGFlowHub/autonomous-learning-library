@@ -27,8 +27,7 @@ class TestMultiDimQNetwork(unittest.TestCase):
             nn.Linear(STATE_DIM, ACTIONS * REWARD_DIM),
             View((-1, ACTIONS, REWARD_DIM))
         )
-        def optimizer(params):
-            return torch.optim.SGD(params, lr=0.1)
+        optimizer = torch.optim.SGD(self.model.parameters(), lr=0.1)
         self.q = QNetwork(self.model, optimizer, ACTIONS)
 
     def test_forward(self):
@@ -62,6 +61,24 @@ class TestMultiDimQNetwork(unittest.TestCase):
             ]
         ])
         tt.assert_almost_equal(results, expected, decimal=3)
+
+    def test_choose_action(self):
+        state = State(torch.randn(2, STATE_DIM))
+        actions = torch.tensor([1, 2])
+        results = self.q(state, actions)
+        expected = torch.tensor([
+            [-0.0580,  0.2703],
+            [ 1.0020, -0.5296]
+        ])
+        tt.assert_almost_equal(results, expected, decimal=3)
+
+    def test_backwards(self):
+        state = State(torch.randn(2, STATE_DIM))
+        actions = torch.tensor([1, 2])
+        out = self.q(state)
+        self.q(state, actions)
+        self.q.reinforce(torch.tensor([[1., -1.], [1, -1]]))
+        new_out = self.q(state)
 
 if __name__ == '__main__':
     unittest.main()
