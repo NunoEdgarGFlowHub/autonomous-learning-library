@@ -5,6 +5,7 @@ from .dqn import DQN
 from .sarsa import Sarsa
 from .vpg import VPG
 from .bbpg import BBPG
+from .bbpg2 import BBPG2
 
 __all__ = [
     "Agent",
@@ -13,5 +14,6 @@ __all__ = [
     "DQN",
     "Sarsa",
     "VPG",
-    "BBPG"
+    "BBPG",
+    "BBPG2"
 ]

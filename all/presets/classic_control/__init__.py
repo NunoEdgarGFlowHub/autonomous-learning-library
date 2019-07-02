@@ -4,6 +4,7 @@ from .dqn import dqn
 from .rainbow import rainbow
 from .vpg import vpg
 from .bbpg import bbpg
+from .bbpg2 import bbpg2
 from .sarsa import sarsa
 
 __all__ = [
