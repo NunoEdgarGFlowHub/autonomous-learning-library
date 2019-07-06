@@ -1,4 +1,5 @@
 from .a2c import a2c
+from .ra2c import ra2c
 from .dqn import dqn
 from .rainbow import rainbow
 from .vpg import vpg

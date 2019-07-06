@@ -50,7 +50,7 @@ class GaussianPolicy(Policy):
         log_probs, entropy = self.decache(batch_size)
         if log_probs.requires_grad:
             # compute losses
-            policy_loss = (-log_probs * errors).mean()
+            policy_loss = (-log_probs.transpose(0, -1) * errors).mean()
             entropy_loss = -entropy.mean()
             self._writer.add_loss('policy', policy_loss)
             self._writer.add_loss('entropy', entropy_loss)
