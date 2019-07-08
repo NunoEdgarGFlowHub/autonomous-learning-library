@@ -34,7 +34,7 @@ def bbpg2(
             clip_grad=clip_grad,
             writer=writer
         )
-        return BBPG2(policy, lr=lr_r, n_episodes=n_episodes)
+        return BBPG2(policy, lr=lr_r, n_episodes=n_episodes, writer=writer)
     return _bbpg2
 
 

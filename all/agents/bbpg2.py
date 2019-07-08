@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+from all.experiments import DummyWriter
 from .abstract import Agent
 
 class BBPG2(Agent):
@@ -7,7 +8,8 @@ class BBPG2(Agent):
             self,
             policy,
             lr=0.01,
-            n_episodes=1
+            n_episodes=1,
+            writer=DummyWriter()
     ):
         self.policy = policy
         self.lr = lr
@@ -17,6 +19,7 @@ class BBPG2(Agent):
         self._gamma = 1
         self._actions_taken = 0
         self._mean_returns = 0
+        self._writer = writer
 
     def act(self, state, reward):
         if self._actions_taken == 0:
@@ -49,6 +52,7 @@ class BBPG2(Agent):
             for (actions_taken, rewards)
             in self._trajectories
         ])
+        self._writer.add_loss('value', advantages.var().item())
         mean_returns = np.mean([rewards.sum().item() for (actions_taken, rewards) in self._trajectories])
         self._mean_returns += self.lr * (mean_returns - self._mean_returns)
         self.policy.reinforce(advantages)
