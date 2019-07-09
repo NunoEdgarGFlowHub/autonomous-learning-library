@@ -5,6 +5,7 @@ from .rainbow import rainbow
 from .vpg import vpg
 from .bbpg import bbpg
 from .bbpg2 import bbpg2
+from .gpg import gpg
 from .sarsa import sarsa
 
 __all__ = [
@@ -12,6 +13,7 @@ __all__ = [
     "actor_critic",
     "dqn",
     "rainbow",
+    "gpg",
     "vpg",
     "sarsa"
 ]
