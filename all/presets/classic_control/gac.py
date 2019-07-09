@@ -1,9 +1,9 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
 import torch
 from torch import nn
-from torch.optim import SGD
+from torch.optim import Adam
 from all.layers import Flatten
-from all.agents import ActorCritic
+from all.agents.gac import GreyActorCritic
 from all.approximation import ValueNetwork
 from all.experiments import DummyWriter
 from all.policies import SoftmaxPolicy
@@ -25,21 +25,20 @@ def fc_policy(env):
         nn.Linear(256, env.action_space.n)
     )
 
-def actor_critic(
+def grey_actor_critic(
         lr_v=5e-4,
         lr_pi=2e-4,
-        gamma=1,
         device=torch.device('cpu')
 ):
-    def _actor_critic(env, writer=DummyWriter()):
+    def _grey_actor_critic(env, writer=DummyWriter()):
         value_model = fc_value(env).to(device)
-        value_optimizer = SGD(value_model.parameters(), lr=lr_v)
+        value_optimizer = Adam(value_model.parameters(), lr=lr_v)
         v = ValueNetwork(value_model, value_optimizer, writer=writer)
         policy_model = fc_policy(env).to(device)
-        policy_optimizer = SGD(policy_model.parameters(), lr=lr_pi)
+        policy_optimizer = Adam(policy_model.parameters(), lr=lr_pi)
         policy = SoftmaxPolicy(policy_model, policy_optimizer, env.action_space.n, writer=writer)
-        return ActorCritic(v, policy, gamma=gamma)
-    return _actor_critic
+        return GreyActorCritic(v, policy, gamma=1)
+    return _grey_actor_critic
 
 
-__all__ = ["actor_critic"]
+__all__ = ["grey_actor_critic"]

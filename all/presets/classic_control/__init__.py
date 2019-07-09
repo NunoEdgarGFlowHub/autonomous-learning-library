@@ -5,6 +5,7 @@ from .rainbow import rainbow
 from .vpg import vpg
 from .bbpg import bbpg
 from .bbpg2 import bbpg2
+from .gac import grey_actor_critic as gac
 from .gpg import gpg
 from .sarsa import sarsa
 
