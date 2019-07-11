@@ -1,7 +1,7 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
 import torch
 from torch import nn
-from torch.optim import SGD
+from torch.optim import Adam
 from all.layers import Flatten
 from all.agents import VPG
 from all.approximation import ValueNetwork, FeatureNetwork
@@ -38,9 +38,9 @@ def vpg(
         value_model = fc_value(env).to(device)
         policy_model = fc_policy(env).to(device)
 
-        feature_optimizer = SGD(feature_model.parameters(), lr=lr)
-        value_optimizer = SGD(value_model.parameters(), lr=lr)
-        policy_optimizer = SGD(policy_model.parameters(), lr=lr)
+        feature_optimizer = Adam(feature_model.parameters(), lr=lr)
+        value_optimizer = Adam(value_model.parameters(), lr=lr)
+        policy_optimizer = Adam(policy_model.parameters(), lr=lr)
 
         features = FeatureNetwork(
             feature_model, feature_optimizer, clip_grad=clip_grad)
