@@ -3,5 +3,6 @@ from .dqn import dqn
 from .rainbow import rainbow
 from .vpg import vpg
 from .bbpg import bbpg
+from .gpg import gpg
 
 __all__ = ["a2c", "dqn", "rainbow", "vpg", "bbpg"]
