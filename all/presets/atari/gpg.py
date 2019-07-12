@@ -41,7 +41,7 @@ def gpg(
         # match a2c hypers
         clip_grad=0.5,
         discount_factor=0.99,
-        lr_pi=7e-4,
+        lr_pi=2e-4,
         lr_v=7e-4,    # RMSprop learning rate
         alpha=0.99, # RMSprop momentum decay
         eps=1e-4,   # RMSprop stability
