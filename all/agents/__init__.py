@@ -5,6 +5,7 @@ from .ddpg import DDPG
 from .dqn import DQN
 from .ppo import PPO
 from .sarsa import Sarsa
+from .ta2c import TA2C
 from .vpg import VPG
 
 __all__ = [
@@ -15,5 +16,6 @@ __all__ = [
     "DQN",
     "PPO",
     "Sarsa",
+    "TA2C",
     "VPG",
 ]
