@@ -18,32 +18,29 @@ def conv_features():
         nn.Conv2d(64, 64, 3, stride=1),
         nn.ReLU(),
         nn.Flatten(),
+        nn.Linear(3456, 512),
+        nn.ReLU()
     )
-
 
 def value_net():
-    return nn.Sequential(nn.Linear(3456, 512), nn.ReLU(), nn.Linear0(512, 1))
-
+    return nn.Linear0(512, 1)
 
 def policy_net(env):
-    return nn.Sequential(
-        nn.Linear(3456, 512), nn.ReLU(), nn.Linear0(512, env.action_space.n)
-    )
-
+    return nn.Linear0(512, env.action_space.n)
 
 def ta2c(
-        # modified from stable baselines hyperparameters
-        clip_grad=0.1,
+        # stable-baselines a2c hyperparameters
         discount_factor=0.99,
+        n_steps=5,
+        value_loss_scaling=0.25,
+        entropy_loss_scaling=0.01,
+        clip_grad=0.5,
         lr=7e-4,    # RMSprop learning rate
         alpha=0.99, # RMSprop momentum decay
-        eps=1e-4,   # RMSprop stability
-        entropy_loss_scaling=0.01,
-        value_loss_scaling=0.25,
+        eps=1e-5,   # RMSprop stability
+        n_envs=16,
+        # additional parameters
         plus_loss_scaling=1e-9,
-        feature_lr_scaling=1,
-        n_envs=64,
-        n_steps=5,
         final_discount_frame=100e6,
         device=torch.device("cpu"),
 ):
@@ -58,7 +55,7 @@ def ta2c(
         feature_optimizer = RMSprop(
             feature_model.parameters(),
             alpha=alpha,
-            lr=lr * feature_lr_scaling / 4,
+            lr=lr,
             eps=eps
         )
         value_optimizer = RMSprop(
@@ -70,13 +67,13 @@ def ta2c(
         plus_optimizer = RMSprop(
             plus_model.parameters(),
             alpha=alpha,
-            lr=lr / 2,
+            lr=lr,
             eps=eps
         )
         policy_optimizer = RMSprop(
             policy_model.parameters(),
             alpha=alpha,
-            lr=lr / 3,
+            lr=lr,
             eps=eps
         )
 
