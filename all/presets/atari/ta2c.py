@@ -38,7 +38,7 @@ def ta2c(
         lr=7e-4,    # RMSprop learning rate
         alpha=0.99, # RMSprop momentum decay
         eps=1e-5,   # RMSprop stability
-        n_envs=16,
+        n_envs=64,
         # additional parameters
         plus_loss_scaling=1e-9,
         final_discount_frame=100e6,
@@ -47,17 +47,11 @@ def ta2c(
     def _ta2c(envs, writer=DummyWriter()):
         env = envs[0]
 
-        feature_model = conv_features().to(device)
         value_model = value_net().to(device)
         plus_model = value_net().to(device)
         policy_model = policy_net(env).to(device)
+        feature_model = conv_features().to(device)
 
-        feature_optimizer = RMSprop(
-            feature_model.parameters(),
-            alpha=alpha,
-            lr=lr,
-            eps=eps
-        )
         value_optimizer = RMSprop(
             value_model.parameters(),
             alpha=alpha,
@@ -67,21 +61,22 @@ def ta2c(
         plus_optimizer = RMSprop(
             plus_model.parameters(),
             alpha=alpha,
-            lr=lr,
+            lr=lr / 2,
             eps=eps
         )
         policy_optimizer = RMSprop(
             policy_model.parameters(),
             alpha=alpha,
-            lr=lr,
+            lr=lr / 3,
+            eps=eps
+        )
+        feature_optimizer = RMSprop(
+            feature_model.parameters(),
+            alpha=alpha,
+            lr=lr / 4,
             eps=eps
         )
 
-        features = FeatureNetwork(
-            feature_model,
-            feature_optimizer,
-            clip_grad=clip_grad
-        )
         v = VNetwork(
             value_model,
             value_optimizer,
@@ -104,6 +99,11 @@ def ta2c(
             entropy_loss_scaling=entropy_loss_scaling,
             clip_grad=clip_grad,
             writer=writer,
+        )
+        features = FeatureNetwork(
+            feature_model,
+            feature_optimizer,
+            clip_grad=clip_grad
         )
 
         return ParallelAtariBody(
