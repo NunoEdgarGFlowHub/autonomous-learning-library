@@ -56,7 +56,7 @@ class MEDQN(Agent):
             next_q_values = self.q.eval(next_states)
             next_probs = torch.nn.functional.softmax(next_q_values / self.temperature, dim=1)
             next_policy = torch.distributions.categorical.Categorical(probs=next_probs)
-            next_values = (next_q_values * next_probs).sum(dim=1)
+            next_values = (self.discount_factor * next_q_values * next_probs).sum(dim=1)
             entropy = next_policy.entropy()
 
             self.writer.add_loss('entropy', entropy.mean())
