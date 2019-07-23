@@ -6,6 +6,7 @@ from .vac import vac
 from .vpg import vpg
 from .vqn import vqn
 from .vsarsa import vsarsa
+from .medqn import medqn
 
 __all__ = [
     "a2c",
@@ -15,5 +16,6 @@ __all__ = [
     "vac",
     "vpg",
     "vqn",
-    "vsarsa"
+    "vsarsa",
+    "medqn",
 ]

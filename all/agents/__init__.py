@@ -8,6 +8,7 @@ from .vac import VAC
 from .vpg import VPG
 from .vqn import VQN
 from .vsarsa import VSarsa
+from .medqn import MEDQN
 
 __all__ = [
     "Agent",
@@ -19,4 +20,5 @@ __all__ = [
     "VPG",
     "VQN",
     "VSarsa",
+    "MEDQN"
 ]
