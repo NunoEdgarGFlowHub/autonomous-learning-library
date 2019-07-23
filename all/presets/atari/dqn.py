@@ -22,7 +22,7 @@ def dqn(
         discount_factor=0.99,
         action_repeat=4,
         update_frequency=4,
-        lr=5e-4, # lr for Adam: Deepmind used RMSprop
+        lr=7e-4, # lr for Adam: Deepmind used RMSprop
         eps=1.5e-4, # stability parameter for Adam
         initial_exploration=1.,
         final_exploration=0.02, # originally 0.1
