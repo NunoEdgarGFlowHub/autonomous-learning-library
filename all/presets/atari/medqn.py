@@ -1,6 +1,6 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
 import torch
-from torch.optim import Adam
+from torch.optim import RMSprop
 from torch.nn.functional import smooth_l1_loss
 from all.approximation import QNetwork, PolyakTarget
 from all.agents import MEDQN
@@ -15,34 +15,39 @@ def medqn(
         # in https://www.nature.com/articles/nature14236
         # except where noted.
         minibatch_size=32,
-        replay_buffer_size=100000, # originally 1e6
+        replay_buffer_size=200000, # originally 1e6
         agent_history_length=4,
+        polyak_rate=0.001, # polyak averaging of target network
         discount_factor=0.99,
         action_repeat=4,
         update_frequency=4,
-        lr=7e-4, # lr for Adam: Deepmind used RMSprop
-        eps=1.5e-4, # stability parameter for Adam
-        polyak_rate=0.001,
-        final_exploration_frame=1000000,
-        replay_start_size=50000,
+        # RMSprop settings
+        lr=2.5e-4,
+        gradient_momentum=0.95,
+        squared_gradient_momentum=0.95,
+        min_squared_gradient=0.01,
+        # Exporation parameter
         temperature=0.01,
+        # Other
+        replay_start_size=50000,
         noop_max=30,
         device=torch.device('cpu')
 ):
     # counted by number of updates rather than number of frame
-    final_exploration_frame /= action_repeat
     replay_start_size /= action_repeat
 
     def _medqn(env, writer=DummyWriter()):
-        _model = nature_dqn(env).to(device)
-        _optimizer = Adam(
-            _model.parameters(),
+        model = nature_dqn(env).to(device)
+        optimizer = RMSprop(
+            model.parameters(),
             lr=lr,
-            eps=eps
+            momentum=gradient_momentum,
+            alpha=squared_gradient_momentum,
+            eps=min_squared_gradient,
         )
         q = QNetwork(
-            _model,
-            _optimizer,
+            model,
+            optimizer,
             env.action_space.n,
             target=PolyakTarget(polyak_rate),
             loss=smooth_l1_loss,
