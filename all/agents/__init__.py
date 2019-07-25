@@ -8,6 +8,7 @@ from .vac import VAC
 from .vpg import VPG
 from .vqn import VQN
 from .vsarsa import VSarsa
+from .gpg import GPG
 
 __all__ = [
     "Agent",

@@ -6,6 +6,7 @@ from .vac import vac
 from .vpg import vpg
 from .vqn import vqn
 from .vsarsa import vsarsa
+from .gpg import gpg
 
 __all__ = [
     "a2c",
