@@ -12,7 +12,9 @@ def gpg(
         clip_grad=0,
         entropy_loss_scaling=0.001,
         gamma=0.99,
-        lr=5e-3,
+        lr_g=1e-2,
+        lr_pi=3e-3,
+        lr_fe=1e-3,
         min_batch_size=500,
         device=torch.device('cpu')
 ):
@@ -21,9 +23,9 @@ def gpg(
         value_model = fc_value_head(hidden=65).to(device) # include extra reward parameter
         policy_model = fc_policy_head(env).to(device)
 
-        feature_optimizer = Adam(feature_model.parameters(), lr=lr)
-        value_optimizer = Adam(value_model.parameters(), lr=lr)
-        policy_optimizer = Adam(policy_model.parameters(), lr=lr)
+        value_optimizer = Adam(value_model.parameters(), lr=lr_g)
+        policy_optimizer = Adam(policy_model.parameters(), lr=lr_pi)
+        feature_optimizer = Adam(feature_model.parameters(), lr=lr_fe)
 
         features = FeatureNetwork(
             feature_model, feature_optimizer, clip_grad=clip_grad)
