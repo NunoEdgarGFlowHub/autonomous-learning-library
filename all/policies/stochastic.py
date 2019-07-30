@@ -42,6 +42,15 @@ class StochasticPolicy(Approximation):
                 return action
             return distribution.log_prob(action)
 
+    def target(self, state, action=None):
+        with torch.no_grad():
+            outputs = self._target(state)
+            distribution = self.distribution(outputs)
+            if action is None:
+                action = distribution.sample()
+                return action
+            return distribution.log_prob(action)
+
     def reinforce(self, loss, retain_graph=False):
         if callable(loss):
             log_probs, entropy = self._dequeue_all()
