@@ -48,9 +48,8 @@ class PPPO(Agent):
         if len(self._buffer) >= self._batch_size:
             states, actions, advantages = self._buffer.advantages(_states)
             with torch.no_grad():
-                features = self.features.target(states)
-                pi_0 = self.policy.target(features, actions)
-                targets = self.v.target(features) + advantages
+                pi_0 = self.policy.target(self.features.target(states), actions)
+                targets = self.v.eval(self.features.eval(states)) + advantages
             for _ in range(self._epochs):
                 self._train_epoch(states, actions, pi_0, advantages, targets)
 
