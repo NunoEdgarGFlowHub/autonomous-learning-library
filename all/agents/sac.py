@@ -12,6 +12,7 @@ class SAC(Agent):
                  entropy_target=-2., # usually -action_space.size[0]
                  temperature_initial=0.1,
                  lr_temperature=1e-4,
+                 lr_entropy=1e-3,
                  discount_factor=0.99,
                  minibatch_size=32,
                  replay_start_size=5000,
@@ -34,6 +35,7 @@ class SAC(Agent):
         self.entropy_target = entropy_target
         self.temperature = temperature_initial
         self.lr_temperature = lr_temperature
+        self.lr_entropy = lr_entropy
         # data
         self.env = None
         self.state = None
@@ -67,12 +69,10 @@ class SAC(Agent):
                     self.q_1.target(states, _actions),
                     self.q_2.target(states, _actions),
                 ) - self.temperature * _log_probs
-                temperature_loss = ((_log_probs + self.entropy_target).detach().mean())
+                temperature_loss = -((_log_probs + self.entropy_target).detach().mean())
                 self.writer.add_loss('entropy', -_log_probs.mean())
                 self.writer.add_loss('v_mean', v_targets.mean())
                 self.writer.add_loss('r_mean', rewards.mean())
-                self.writer.add_loss('temperature_loss', temperature_loss)
-                self.writer.add_loss('temperature', self.temperature)
 
             # update Q-functions
             q_1_errors = q_targets - self.q_1(states, actions)
@@ -95,7 +95,14 @@ class SAC(Agent):
             self.q_1.zero_grad()
 
             # adjust temperature
-            self.temperature += self.lr_temperature * temperature_loss
+            with torch.no_grad():
+                entropy_loss = (q_1_errors * (_log_probs + self.entropy_target)).mean()
+                self.writer.add_loss('temperature_loss', temperature_loss)
+                self.writer.add_loss('entropy_loss', entropy_loss)
+                self.writer.add_loss('temperature', self.temperature)
+                self.writer.add_loss('entropy_target', self.entropy_target)
+                self.temperature += self.lr_temperature * temperature_loss
+                self.entropy_target += self.lr_entropy * entropy_loss
 
     def _should_train(self):
         return (self.frames_seen > self.replay_start_size and
