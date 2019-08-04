@@ -242,6 +242,8 @@ class DeepmindAtariBody(Body):
             preprocess=True,
     ):
         agent = FromLegacyBody(agent)
+        if frame_stack > 1:
+            agent = FrameStack(agent, size=frame_stack)
         if action_repeat > 1:
             agent = RepeatActions(agent, repeats=action_repeat)
         if clip_rewards:
@@ -250,8 +252,6 @@ class DeepmindAtariBody(Body):
             agent = FireOnReset(agent)
         if episodic_lives:
             agent = EpisodicLives(agent, env)
-        if frame_stack > 1:
-            agent = FrameStack(agent, size=frame_stack)
         if preprocess:
             agent = AtariVisionPreprocessor(agent)
         if deflicker:
