@@ -2,7 +2,7 @@ import torch
 import numpy as np
 from all.environments import State
 from .abstract import Body
-from .parallel import ParallelBody, ParallelRepeatActions
+from .parallel import ParallelBody, ParallelRepeatActions, ParallelFrameStack
 
 # pylint: disable=protected-access
 NOOP_ACTION = torch.tensor([0])
@@ -277,6 +277,8 @@ class ParallelAtariBody(Body):
             noop_max=30,
             preprocess=True,
     ):
+        if frame_stack > 1:
+            agent = ParallelFrameStack(agent, size=frame_stack)
         if action_repeat > 1:
             agent = ParallelRepeatActions(agent, repeats=action_repeat)
 
@@ -288,8 +290,6 @@ class ParallelAtariBody(Body):
                 agent = FireOnReset(agent)
             if episodic_lives:
                 agent = EpisodicLives(agent, env)
-            if frame_stack > 1:
-                agent = FrameStack(agent, size=frame_stack)
             if preprocess:
                 agent = AtariVisionPreprocessor(agent)
             if deflicker:

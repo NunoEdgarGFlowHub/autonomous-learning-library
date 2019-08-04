@@ -1,7 +1,7 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
 import torch
 from torch.optim import Adam
-from torch.optim.lr_scheduler import CosineAnnealingLR
+from torch.optim.lr_scheduler import LambdaLR
 from all.agents import PPO
 from all.bodies import ParallelAtariBody
 from all.approximation import VNetwork, FeatureNetwork
@@ -20,7 +20,6 @@ def ppo(
         eps=1e-5,  # Adam stability
         entropy_loss_scaling=0.01,
         value_loss_scaling=0.5,
-        min_lr_scale=0.1, # Maximum amount to anneal the lr
         clip_initial=0.1,
         clip_final=0.01,
         final_anneal_frame=40e6, # Anneal LR and clip until here
@@ -34,6 +33,7 @@ def ppo(
     # but we only update once per n_steps,
     # with n_envs and 4 frames per step
     final_anneal_step = final_anneal_frame * epochs * minibatches / (n_steps * n_envs * 4)
+    lr_lambda = lambda epoch: max(0, (final_anneal_step - epoch) / final_anneal_step)
 
     def _ppo(envs, writer=DummyWriter()):
         env = envs[0]
@@ -52,10 +52,9 @@ def ppo(
             feature_model,
             feature_optimizer,
             clip_grad=clip_grad,
-            scheduler=CosineAnnealingLR(
+            scheduler=LambdaLR(
                 feature_optimizer,
-                final_anneal_step,
-                eta_min=lr * min_lr_scale
+                lr_lambda
             ),
             writer=writer
         )
@@ -65,10 +64,9 @@ def ppo(
             loss_scaling=value_loss_scaling,
             clip_grad=clip_grad,
             writer=writer,
-            scheduler=CosineAnnealingLR(
+            scheduler=LambdaLR(
                 value_optimizer,
-                final_anneal_step,
-                eta_min=lr * min_lr_scale
+                lr_lambda,
             ),
         )
         policy = SoftmaxPolicy(
@@ -78,10 +76,9 @@ def ppo(
             entropy_loss_scaling=entropy_loss_scaling,
             clip_grad=clip_grad,
             writer=writer,
-            scheduler=CosineAnnealingLR(
+            scheduler=LambdaLR(
                 policy_optimizer,
-                final_anneal_step,
-                eta_min=lr * min_lr_scale
+                lr_lambda
             ),
         )
 
