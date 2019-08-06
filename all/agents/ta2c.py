@@ -1,4 +1,5 @@
 from all.memory import NStepAdvantageBuffer
+from all.logging import DummyWriter
 from ._agent import Agent
 
 
@@ -12,7 +13,8 @@ class TA2C(Agent):
             beta=1, # mixing factor
             n_envs=None,
             n_steps=4,
-            discount_factor=0.99
+            discount_factor=0.99,
+            writer=DummyWriter()
     ):
         if n_envs is None:
             raise RuntimeError("Must specify n_envs.")
@@ -30,6 +32,7 @@ class TA2C(Agent):
         self._buffer = self._make_buffer(v, discount_factor)
         self._plus_buffer = self._make_buffer(plus, 1)
         self._features = []
+        self._writer = writer
 
     def act(self, states, rewards):
         features = self.features.eval(states)
@@ -56,8 +59,10 @@ class TA2C(Agent):
             )
             # forward pass
             features = self.features(states)
-            self.v(features)
-            self.plus(features)
+            values = self.v(features)
+            plusses = self.plus(features)
+            self._writer.add_loss('v/mean', values.mean())
+            self._writer.add_loss('plusses/mean', (1- self.discount_factor) * plusses.mean())
             self.policy(features, actions)
             # backward pass
             self.v.reinforce(advantages)
