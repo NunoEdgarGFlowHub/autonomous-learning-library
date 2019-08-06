@@ -5,6 +5,7 @@ from .ddqn import DDQN
 from .dqn import DQN
 from .ppo import PPO
 from .sac import SAC
+from .ta2c import TA2C
 from .vac import VAC
 from .vpg import VPG
 from .vqn import VQN
@@ -16,6 +17,8 @@ __all__ = [
     "DDPG",
     "DQN",
     "PPO",
+    "SAC",
+    "TA2C",
     "VAC",
     "VPG",
     "VQN",
