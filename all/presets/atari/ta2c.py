@@ -5,13 +5,14 @@ from all.agents import TA2C
 from all.bodies import DeepmindAtariBody
 from all.approximation import VNetwork, FeatureNetwork
 from all.logging import DummyWriter
+from all.optim import LinearScheduler
 from all.policies import SoftmaxPolicy
 from .models import nature_features, nature_value_head, nature_policy_head
 
 
 def ta2c(
         # taken from stable-baselines
-        discount_factor=0.99,
+        discount_factor=0.95,
         n_steps=5,
         value_loss_scaling=0.25,
         entropy_loss_scaling=0.01,
@@ -21,8 +22,11 @@ def ta2c(
         alpha=0.99,  # RMSprop momentum decay
         eps=1e-5,  # RMSprop stability
         n_envs=16,
+        final_anneal_frame=10e6,
         device=torch.device("cpu"),
 ):
+    final_anneal_step = final_anneal_frame / (n_steps * n_envs)
+
     def _ta2c(envs, writer=DummyWriter()):
         env = envs[0]
 
@@ -78,6 +82,7 @@ def ta2c(
                 n_envs=n_envs,
                 n_steps=n_steps,
                 discount_factor=discount_factor,
+                beta=LinearScheduler(0, 1, 0, final_anneal_step),
                 writer=writer
             ),
         )
