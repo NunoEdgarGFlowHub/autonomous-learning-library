@@ -18,7 +18,7 @@ def vqn(
         final_exploration_frame=1000000,
         final_exploration=0.02,
         initial_exploration=1.,
-        lr=1e-3,
+        lr=1e-4,
         n_envs=64,
         device=torch.device('cpu')
 ):

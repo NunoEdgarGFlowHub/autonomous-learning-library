@@ -18,7 +18,7 @@ def vac(
         lr_v=5e-4,
         alpha=0.99, # RMSprop momentum decay
         eps=1e-5,   # RMSprop stability
-        n_envs=16,
+        n_envs=64,
         device=torch.device('cpu')
 ):
     '''Vanilla Actor-Critic Atari preset'''
